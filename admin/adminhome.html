@@ -129,51 +129,42 @@
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"/>
 <script src="js/amazon-cognito-identity.min.js"/>
 <script src="js/aws-cognito-sdk.min.js"/>
-    <script>
+<script>
+  // Declare a global variable for the token
+  var idToken;
 
-        function checkLogin() {
-    var url_string = window.location.href;
-    console.log("Full URL:", url_string); // Debugging
+  function checkLogin() {
+      var url = new URL(window.location.href);
+      idToken = url.searchParams.get("id_token");
+      console.log("Extracted id_token:", idToken);  // Debugging log
 
-    var url = new URL(url_string);
-    var idToken = url.searchParams.get("id_token");
-    console.log("idToken:", idToken);
-    // if (!idToken) {
-    //     // Check hash if query params are missing
-    //     var hashParams = new URLSearchParams(window.location.hash.substring(1));
-    //     idToken = hashParams.get("id_token");
-    // }
+      if (idToken) {
+          // Store the token in localStorage for future use
+          localStorage.setItem("id_token", idToken);
+          console.log("Stored id_token in localStorage");  // Debugging log
+          auth(idToken);
+      } else {
+          console.warn("id_token not found in URL!");
+      }
+  }
 
-    console.log("Extracted id_token:", idToken); // Debugging
+  function auth(token) {
+      AWS.config.update({
+          region: "us-east-2"
+      });
 
-    if (idToken) {
-        document.getElementById("welcomeMsg").innerHTML = "signed in";
-        localStorage.setItem("id_token", idToken); // Store for future use
-        auth();
-    } else {
-        console.warn("id_token not found in URL!");
-    }
-}
+      AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+          IdentityPoolId: 'us-east-1:f28a2426-3e61-4916-8ae3-937d823e4da4',
+          Logins: {
+              // Ensure you replace (AWS_REGION) with the actual region if needed
+              "cognito-idp.(AWS_REGION).amazonaws.com/us-east-1_TzzccFzGZ": token
+          }
+      });
+      console.log("AWS Cognito Identity Credentials configured with idToken:", token);
+  }
 
-// document.addEventListener("DOMContentLoaded", checkLogin);
-
-
-function auth() {
-    AWS.config.update({
-      region: "us-east-2",
-    //  endpoint: 'http://localhost:8000', // If you use dynamoDB installed locally
-    //  accessKeyId: "(ACCESS_KEY_ID)",
-    //  secretAccessKey: "(SECRET_ACCESS_KEY)"
-
-    });
-
-    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-            IdentityPoolId : 'us-east-1:f28a2426-3e61-4916-8ae3-937d823e4da4',
-            Logins : {
-              "cognito-idp.(AWS_REGION).amazonaws.com/us-east-1_TzzccFzGZ": idToken
-            }
-          });
-}
-    </script>
+  // Ensure the checkLogin function runs once the DOM is loaded.
+   document.addEventListener("DOMContentLoaded", checkLogin);
+</script>
 </body>
 </html>
