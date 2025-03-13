@@ -28,8 +28,8 @@ authTabs.forEach(tab => {
 // Form submission handling
 loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
+    const email = document.getElementById('emailInputSignin').value;
+    const password = document.getElementById('passwordInputSignin').value;
     
     // Here you would typically make an API call to authenticate
     console.log('Login attempt:', { email, password });
@@ -42,9 +42,9 @@ loginForm.addEventListener('submit', (e) => {
 signupForm.addEventListener('submit', (e) => {
     e.preventDefault();
     const name = document.getElementById('signupName').value;
-    const email = document.getElementById('signupEmail').value;
-    const password = document.getElementById('signupPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+    const email = document.getElementById('emailInputRegister').value;
+    const password = document.getElementById('passwordInputRegister').value;
+    const confirmPassword = document.getElementById('password2InputRegister').value;
     
     // Basic validation
     if (password !== confirmPassword) {

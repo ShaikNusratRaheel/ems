@@ -6,7 +6,8 @@
     <title>Admin Dashboard - EventManager</title>
     <link rel="stylesheet" href="adminhome.css">
 </head>
-<body>
+<body onload="checkLogin()">
+    
     <div class="dashboard">
         <!-- Sidebar -->
         <aside class="sidebar">
@@ -16,6 +17,7 @@
             </div>
             <nav class="sidebar-nav">
                 <ul>
+                    <li id="welcomeMsg"></li>
                     <li>
                         <a href="adminhome.html" class="nav-link active">
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -124,5 +126,55 @@
         </main>
     </div>
     <script src="adminhome.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"/>
+<script src="js/amazon-cognito-identity.min.js"/>
+<script src="js/aws-cognito-sdk.min.js"/>
+    <script>
+        var idToken = null;
+
+        function checkLogin() {
+    var url_string = window.location.href;
+    console.log("Full URL:", url_string); // Debugging
+
+    var url = new URL(url_string);
+    var idToken = url.searchParams.get("id_token");
+
+    if (!idToken) {
+        // Check hash if query params are missing
+        var hashParams = new URLSearchParams(window.location.hash.substring(1));
+        idToken = hashParams.get("id_token");
+    }
+
+    console.log("Extracted id_token:", idToken); // Debugging
+
+    if (idToken) {
+        document.getElementById("welcomeMsg").innerHTML = "signed in";
+        localStorage.setItem("id_token", idToken); // Store for future use
+        auth();
+    } else {
+        console.warn("id_token not found in URL!");
+    }
+}
+
+// document.addEventListener("DOMContentLoaded", checkLogin);
+
+
+function auth() {
+    AWS.config.update({
+      region: "us-east-2",
+    //  endpoint: 'http://localhost:8000', // If you use dynamoDB installed locally
+    //  accessKeyId: "(ACCESS_KEY_ID)",
+    //  secretAccessKey: "(SECRET_ACCESS_KEY)"
+
+    });
+
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+            IdentityPoolId : 'us-east-1:f28a2426-3e61-4916-8ae3-937d823e4da4',
+            Logins : {
+              "cognito-idp.(AWS_REGION).amazonaws.com/us-east-1_TzzccFzGZ": idToken
+            }
+          });
+}
+    </script>
 </body>
 </html>
