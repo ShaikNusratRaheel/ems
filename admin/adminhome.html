@@ -138,12 +138,12 @@
 
     var url = new URL(url_string);
     var idToken = url.searchParams.get("id_token");
-
-    if (!idToken) {
-        // Check hash if query params are missing
-        var hashParams = new URLSearchParams(window.location.hash.substring(1));
-        idToken = hashParams.get("id_token");
-    }
+    console.log("idToken:", idToken);
+    // if (!idToken) {
+    //     // Check hash if query params are missing
+    //     var hashParams = new URLSearchParams(window.location.hash.substring(1));
+    //     idToken = hashParams.get("id_token");
+    // }
 
     console.log("Extracted id_token:", idToken); // Debugging
 
