@@ -6,6 +6,56 @@
     <title>Register for Events - EventManager</title>
     <link rel="stylesheet" href="userhome.css">
     <link rel="stylesheet" href="user-pages.css">
+    <style>
+        .loading-ring {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 0, 0, 0.1);
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .register-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .registered {
+    background-color: #80EF80; /* Light gray background */
+    color: #333; /* Dark text */
+    border: none;
+    font-size: 14px;
+    padding: 5px 10px;
+    cursor: default; /* No pointer effect */
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 5px;
+    box-shadow: none;
+    display: inline-block;
+}
+.full {
+    background-color: #d3d3d3; /* Light gray */
+    color: #888;
+    cursor: not-allowed;
+    font-weight: bold;
+    border: none;
+}
+
+
+    </style>
 </head>
 <body>
     <div class="dashboard">
@@ -44,7 +94,7 @@
                 </ul>
             </nav>
             <div class="sidebar-footer">
-                <a href="../index.html" class="logout-btn" id="logoutBtn">
+                <a href="https://us-east-18ayp9fozb.auth.us-east-1.amazoncognito.com/logout?client_id=4u8498hkb3nljv9c343g9ktgk2&redirect_uri=https://127.0.0.1:5500/callback.html&response_type=token&scope=aws.cognito.signin.user.admin+email+openid+phone+profile" class="logout-btn" id="logoutBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     Logout
                 </a>
@@ -54,12 +104,14 @@
         <!-- Main Content -->
         <main class="main-content">
             <h2>Available Events</h2>
+
             <div class="search-filters">
                 <input type="text" placeholder="Search events..." class="search-input">
                 <select class="filter-select">
                     <option value="all">All Categories</option>
-                    <option value="tech">Technology</option>
-                    <option value="music">Music</option>
+                    <option value="technology">Technology</option>
+                    <option value="cultural">Cultural</option>
+                    <option value="business">Business</option>
                     <option value="sports">Sports</option>
                 </select>
                 <select class="filter-select">
@@ -69,9 +121,9 @@
                     <option value="ch">Chicago</option>
                 </select>
             </div>
-
-            <div class="event-grid">
-                <div class="event-card">
+            <div class="loading-ring" id="loading"></div>
+             <div class="event-grid">
+                <!-- <div class="event-card">
                     <div class="event-banner">
                         <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80" alt="Tech Summit">
                         <span class="event-category">Technology</span>
@@ -89,14 +141,14 @@
                             <button class="btn-register">Register Now</button>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <div class="event-card">
                     <div class="event-banner">
-                        <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80" alt="Music Festival">
-                        <span class="event-category">Music</span>
+                        <!-- <img src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&q=80" alt="Music Festival">
+                        <span class="event-category">Music</span> -->
                     </div>
-                    <div class="event-content">
+                    <!-- <div class="event-content">
                         <h3>Summer Music Festival</h3>
                         <div class="event-info">
                             <p><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg> April 20, 2024</p>
@@ -108,11 +160,255 @@
                             <span class="spots-left">75 spots left</span>
                             <button class="btn-register">Register Now</button>
                         </div>
+                    </div> -->
+                </div>
+            </div> 
+        </main>
+    </div>
+    <!-- <script src="user-pages.js"></script> -->
+    <!--AWS SDK for javascript-->
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.834.0.min.js"></script>
+
+<!-- <script src="api.js"></script> -->
+
+<script src="../js/main.js"></script>
+<script>
+
+    // AWS API Gateway Endpoint (Update this with your actual endpoint)
+const API_URL = "https://3q516gt0rb.execute-api.us-east-1.amazonaws.com/stage1";
+
+// Function to Fetch Events
+async function fetchEvents() {
+    document.getElementById("loading").style.display = "block";
+    try {
+        const response = await fetch("https://3q516gt0rb.execute-api.us-east-1.amazonaws.com/stage1"); // Replace with actual API endpoint
+        const data = await response.json();  // Convert HTTP response to JSON
+        console.log("API Response:", data); // Debugging step
+        
+        if (data.body) {
+            const events = JSON.parse(data.body);  // Parse the 'body' string
+            console.log("Parsed Events:", events); // Debugging step
+            renderEvents(events);  // Call function to display events
+        } else {
+            console.error("Unexpected API response format:", data);
+        }
+    } catch (error) {
+        console.error("Error fetching events:", error);
+    }
+    finally {
+            document.getElementById("loading").style.display = "none"; // Hide loading ring
+        }
+}
+
+const getImage=(event)=>{
+    const imageUrl = `https://eventimages09.s3.us-east-1.amazonaws.com/${event}`;
+    return imageUrl;
+}
+// Function to Render Events in the UI
+function renderEvents(events) {
+    const userId = getUserIdFromToken();
+    const eventGrid = document.querySelector(".event-grid");
+    eventGrid.innerHTML = "";
+
+    if (events.length === 0) {
+        eventGrid.innerHTML = `<p class="error">No events available.</p>`;
+        return;
+    }
+
+    events.forEach(event => {
+        console.log("Event Object:", event); // Debugging step
+        const spotsLeft = event.spotsLeft ?? event.spots_left ?? "N/A";
+        const isFull = spotsLeft === 0 || spotsLeft === "0"; // Check if there are no spots left
+
+        const eventHTML = `
+            <div class="event-card">
+                <div class="event-banner">
+                    <img src="${getImage(event.s3_key)}" alt="${event.name}">
+                    <span class="event-category">${event.category}</span>
+                </div>
+                <div class="event-content">
+                    <h3>${event.title}</h3>
+                    <div class="event-info">
+                        <p>📅 ${event.date}</p>
+                        <p>⏰ ${event.time}</p>
+                        <p>📍 ${event.location}</p>
+                    </div>
+                    <p class="event-description">${event.description}</p>
+                    <div class="event-footer">
+                        <span class="spots-left">${spotsLeft} spots left</span>
+                        <button class="btn-register ${isFull ? "full" : ""}" 
+                            data-event-id="${event.eventId}" 
+                            onclick="${isFull ? "" : `registerEvent('${event.eventId}')`}">
+                            ${isFull ? "No Slots" : "Register Now"}
+                        </button>
                     </div>
                 </div>
             </div>
-        </main>
-    </div>
-    <script src="user-pages.js"></script>
+        `;
+        eventGrid.innerHTML += eventHTML;
+    });
+
+    // Ensure all buttons exist before checking status
+    setTimeout(() => {
+        events.forEach(event => {
+            checkRegistrationStatus(userId, event.eventId);
+        });
+    }, 100); // Small delay to ensure elements exist
+}
+
+
+// Function to Filter Events
+function filterEvents() {
+    const searchQuery = document.querySelector(".search-input").value.toLowerCase();
+    const categoryFilter = document.querySelector(".filter-select").value;
+    const locationFilter = document.querySelectorAll(".filter-select")[1].value;
+
+    document.querySelectorAll(".event-card").forEach(card => {
+        const eventName = card.querySelector("h3").textContent.toLowerCase();
+        const eventCategory = card.querySelector(".event-category").textContent.toLowerCase();
+        const eventLocation = card.querySelector(".event-info p:nth-child(3)").textContent.toLowerCase();
+
+        const matchesSearch = eventName.includes(searchQuery);
+        const matchesCategory = categoryFilter === "all" || eventCategory.includes(categoryFilter);
+        const matchesLocation = locationFilter === "all" || eventLocation.includes(locationFilter);
+
+        card.style.display = matchesSearch && matchesCategory && matchesLocation ? "block" : "none";
+    });
+}
+
+
+function checkRegistrationStatus(userId, eventId) {
+    fetch(`https://3q516gt0rb.execute-api.us-east-1.amazonaws.com/stage4/register/checkStatus?userId=${userId}&eventId=${eventId}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log(`Checking status for eventId=${eventId}:`, data);
+            const responseBody = JSON.parse(data.body); // Parse the string inside "body"
+            if (responseBody.isRegistered) {
+                
+                setTimeout(() => { // Small delay to ensure buttons exist
+                    const button = document.querySelector(`.btn-register[data-event-id="${eventId}"]`);
+                    console.log("Found button for eventId:", eventId, button); // Debugging
+
+                    if (button) {
+                        button.innerText = "Registered";
+                        button.disabled = true;
+                        button.classList.add("registered");
+                    } else {
+                        console.warn(`Button not found for eventId=${eventId}`);
+                    }
+                }, 100);
+            }
+        })
+        .catch(error => console.error("Error checking registration status:", error));
+}
+
+
+async function registerEvent(event_Id) {
+    const url = "https://3q516gt0rb.execute-api.us-east-1.amazonaws.com/stage3/register";
+    
+    // Get user ID from token
+    const user_Id = getUserIdFromToken();
+    
+    // Debug logging
+    console.log("Debug - userId:", user_Id);
+    console.log("Debug - eventId:", event_Id);
+
+    // Validate user authentication
+    if (!user_Id) {
+        alert("Please log in to register for events.");
+        window.location.href = "login.html"; // Redirect to login page
+        return;
+    }
+
+    // Validate event ID
+    if (!event_Id) {
+        alert("Invalid event selection. Please try again.");
+        return;
+    }
+
+    const requestBody = {
+        userId: user_Id,
+        eventId: event_Id
+    };
+
+    try {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        // Parse response
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.error || 'Registration failed');
+        }
+
+        // Success handling
+        alert("Successfully registered for the event!");
+        // updateButton(true);
+        
+        // Optionally refresh the events list
+        await fetchEvents();
+        
+
+    } catch (error) {
+        console.error("Registration error:", error);
+        alert(`Registration failed: ${error.message}`);
+    }
+}
+
+// function updateButton(isRegistered) {
+//     const registerBtn = document.getElementById("registerBtn");
+//                 if (isRegistered) {
+//                     registerBtn.textContent = "Registered";
+//                     registerBtn.classList.remove("register-btn");
+//                     registerBtn.classList.add("registered-btn");
+//                     registerBtn.disabled = true;
+//                 }
+//             }
+// Improved getUserIdFromToken function
+function getUserIdFromToken() {
+    try {
+        const token = localStorage.getItem("id_token");
+        
+        if (!token) {
+            console.warn("No authentication token found");
+            return null;
+        }
+
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        
+        if (!payload.sub) {
+            console.warn("No user ID found in token");
+            return null;
+        }
+
+        return payload.sub;
+
+    } catch (error) {
+        console.error("Error parsing authentication token:", error);
+        return null;
+    }
+}
+
+
+
+
+
+
+// Attach event listeners
+document.querySelector(".search-input").addEventListener("input", filterEvents);
+document.querySelectorAll(".filter-select").forEach(select => select.addEventListener("change", filterEvents));
+
+// Load Events on Page Load
+document.addEventListener("DOMContentLoaded", fetchEvents);
+
+</script>
+
 </body>
 </html>

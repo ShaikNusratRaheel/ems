@@ -25,16 +25,16 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Handle logout
-    const logoutBtn = document.getElementById('logoutBtn');
-    logoutBtn.addEventListener('click', function(e) {
-        e.preventDefault();
+    // const logoutBtn = document.getElementById('logoutBtn');
+    // logoutBtn.addEventListener('click', function(e) {
+    //     e.preventDefault();
         
-        // Here you would typically handle the logout logic
-        const confirmLogout = confirm('Are you sure you want to logout?');
-        if (confirmLogout) {
-            window.location.href = '../index.html';
-        }
-    });
+    //     // Here you would typically handle the logout logic
+    //     const confirmLogout = confirm('Are you sure you want to logout?');
+    //     if (confirmLogout) {
+    //         window.location.href = '../index.html';
+    //     }
+    // });
 
     // Simulate real-time notifications (for demo purposes)
     function addNotification(message, time) {

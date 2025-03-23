@@ -5,6 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Events - EventManager</title>
     <link rel="stylesheet" href="adminhome.css">
+    <style>
+        .image-upload {
+            margin-bottom: 1.5rem;
+        }
+        
+        .image-preview {
+            width: 100%;
+            max-width: 300px;
+            height: 200px;
+            border: 2px dashed var(--border-color);
+            border-radius: 0.5rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background-color: #f9fafb;
+        }
+
+        .image-preview img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .image-preview.has-image img {
+            display: block;
+        }
+
+        .image-preview-text {
+            color: #6b7280;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .image-preview.has-image .image-preview-text {
+            display: none;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
+
+        .file-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background-color: #f3f4f6;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            color: var(--text-color);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-input-button:hover {
+            background-color: #e5e7eb;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            font-size: 1rem;
+            background-color: white;
+            color: var(--text-color);
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1rem;
+            padding-right: 2.5rem;
+        }
+
+        select:hover {
+            border-color: #9ca3af;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard">
@@ -43,7 +144,7 @@
                 </ul>
             </nav>
             <div class="sidebar-footer">
-                <a href="../index.html" class="logout-btn" id="logoutBtn">
+                <a href="https://us-east-18ayp9fozb.auth.us-east-1.amazoncognito.com/logout?client_id=4u8498hkb3nljv9c343g9ktgk2&redirect_uri=https://127.0.0.1:5500/callback.html&response_type=token&scope=aws.cognito.signin.user.admin+email+openid+phone+profile" class="logout-btn" id="logoutBtn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                     Logout
                 </a>
@@ -59,9 +160,22 @@
                     <input type="text" id="eventTitle" required>
                 </div>
                 <div class="form-group">
+                    <label for="eventCategory">Category</label>
+                    <select id="eventCategory" required>
+                        <option value="">Select a category</option>
+                        <option value="technology">Technology</option>
+                        <option value="cultural">Cultural</option>
+                        <option value="sports">Sports</option>
+                        <option value="business">Business</option>
+                        <option value="education">Education</option>
+                        <option value="entertainment">Entertainment</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="eventDescription">Description</label>
                     <textarea id="eventDescription" required></textarea>
                 </div>
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="eventDate">Date</label>
@@ -76,6 +190,23 @@
                     <label for="eventLocation">Location</label>
                     <input type="text" id="eventLocation" required>
                 </div>
+                <div class="image-upload">
+                    <label>Event Image</label>
+                    <div class="image-preview" id="imagePreview">
+                        <img id="previewImg" src="#" alt="Event image preview">
+                        <div class="image-preview-text">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <p>No image selected</p>
+                        </div>
+                    </div>
+                    <div class="file-input-wrapper">
+                        <input type="file" id="eventImage" class="file-input" accept="image/*" required>
+                        <div class="file-input-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            Choose Image
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label for="eventCapacity">Capacity</label>
                     <input type="number" id="eventCapacity" required min="1">
@@ -84,49 +215,121 @@
             </form>
         </main>
     </div>
-    
-    <script>
+     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('eventImage');
+            const imagePreview = document.getElementById('imagePreview');
+            const previewImg = document.getElementById('previewImg');
 
-        // Check authentication
-function checkAuth() {
-    const isLoggedIn = localStorage.getItem('isLoggedIn');
-    if (!isLoggedIn) {
-        window.location.href = '../login.html';
-    }
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImg.src = e.target.result;
+                        imagePreview.classList.add('has-image');
+                    }
+                    reader.readAsDataURL(file);
+                } else {
+                    previewImg.src = '#';
+                    imagePreview.classList.remove('has-image');
+                }
+            });
+
+            // Handle form submission
+            // const form = document.getElementById('addEventForm');
+            // form.addEventListener('submit', function(e) {
+            //     e.preventDefault();
+            //     // Here you would typically handle the form submission with the image
+            //     alert('Event created successfully!');
+            //     form.reset();
+            //     imagePreview.classList.remove('has-image');
+            // });
+        });
+    </script> 
+
+    <!--AWS SDK for javascript-->
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.834.0.min.js"></script>
+
+<!-- <script src="api.js"></script> -->
+
+<script src="../js/main.js"></script>
+
+    
+
+<script>
+function logout() {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("id_token");
+    window.location.href = "http://127.0.0.1:5500/index.html";
 }
+</script>
 
-// Event Form Handler
-const eventForm = document.getElementById('addEventForm');
-eventForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+<script>
+    const apiGatewayUrl = "https://3q516gt0rb.execute-api.us-east-1.amazonaws.com/stage1";
     
-    // Get form data
-    const formData = {
-        title: document.getElementById('eventTitle').value,
-        description: document.getElementById('eventDescription').value,
-        date: document.getElementById('eventDate').value,
-        time: document.getElementById('eventTime').value,
-        location: document.getElementById('eventLocation').value,
-        capacity: document.getElementById('eventCapacity').value
-    };
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('addEventForm');
+        const imageInput = document.getElementById('eventImage'); 
+        const imagePreview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
     
-    // Here you would typically send this data to your backend
-    console.log('New Event:', formData);
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
     
-    // Reset form and show success message
-    eventForm.reset();
-    alert('Event created successfully!');
-});
-
-// Logout functionality
-document.getElementById('logoutBtn').addEventListener('click', (e) => {
-    e.preventDefault();
-    localStorage.removeItem('isLoggedIn');
-    window.location.href = '../index.html';
-});
-
-// Initialize
-checkAuth();
+            const imageFile = imageInput.files[0];
+            if (!imageFile) {
+                alert("Please select an image.");
+                return;
+            }
+            const base64Image = await convertToBase64(imageFile);
+    
+            const eventData = {
+                title: document.getElementById('eventTitle').value,
+                category:document.getElementById('eventCategory').value,
+                description: document.getElementById('eventDescription').value,
+                date: document.getElementById('eventDate').value,
+                time: document.getElementById('eventTime').value,
+                location: document.getElementById('eventLocation').value,
+                capacity: document.getElementById('eventCapacity').value,
+                image: base64Image 
+            };
+    
+            try {
+                const response = await fetch(apiGatewayUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventData)
+                });
+    
+                const responseData = await response.json();
+                if (response.ok) {
+                    alert('Event created successfully!');
+    
+                    // ✅ Clear form
+                    form.reset();
+                    previewImg.src = "#";
+                    imagePreview.classList.remove('has-image');
+                } else {
+                    alert('Error: ' + (responseData.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                alert('Network error: ' + error.message);
+            }
+        });
+    });
+    
+    function convertToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result.split(',')[1]); 
+            reader.onerror = error => reject(error);
+        });
+    }
     </script>
+    
+    
 </body>
 </html>
